@@ -10,8 +10,6 @@ globalThis.DOMParser = new JSDOM().window.DOMParser
 import { Zotero, progressWindowSpy } from './zotero.mock'
 import { collectionItem, itemWithoutDOI, regularItem1, regularItem2, DOIinExtraItem, DOIinUrlItem, captchaItem, unavailableItem } from './zoteroItem.mock'
 globalThis.Zotero = Zotero
-// Since there is catch-all in the code which raises alerts
-globalThis.alert = m => { throw new Error(m) }
 
 import { Scihub } from '../content/scihub'
 Zotero.Scihub = new Scihub()
@@ -109,7 +107,7 @@ describe('Scihub test', () => {
 
     it('captcha redirects user and stops execution', async () => {
       const launchURLSpy = spy(Zotero, 'launchURL')
-      const alertStub = stub(globalThis, 'alert')
+      const alertStub = stub(Zotero, 'alert')
 
       // captachItem has weird response
       await Zotero.Scihub.updateItems([captchaItem, regularItem1])

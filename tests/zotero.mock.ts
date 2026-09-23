@@ -7,16 +7,20 @@ const progressWindowSpy = spy()
 const Zotero: IZotero = new class {
   public Scihub
 
+  public initializationPromise = Promise.resolve()
   public debug(_msg: string) { return }
+  public alert(_window: Window | null, _title: string, msg: string) { throw new Error(msg) }
+  public getMainWindow() { return null }
+  public getMainWindows() { return [] }
+  public getActiveZoteroPane() { return null }
   public logError(_err: Error | string) { return }
   public launchURL(_url: string) { return }
 
   public Notifier: IZotero['Notifier'] = new class {
     public registerObserver(_observer: ZoteroObserver, _types: string[], _id: string, _priority?: number) {
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      return 42
+      return 'observer-id'
     }
-    public unregisterObserver(_id: number) { return }
+    public unregisterObserver(_id: string) { return }
   }
 
   public Prefs = new class {
@@ -40,7 +44,7 @@ const Zotero: IZotero = new class {
       }
     }
 
-    public async getAll(): Promise<ZoteroItem[]> {
+    public async getAll(_libraryID: number, _onlyTopLevel?: boolean, _includeDeleted?: boolean): Promise<ZoteroItem[]> {
       return Promise.resolve([regularItem1, regularItem2])
     }
   }
@@ -68,7 +72,12 @@ const Zotero: IZotero = new class {
   }
 
   public Libraries = new class {
-    public isEditable(_libraryId: string): boolean { return true }
+    public getAll() { return [{ libraryID: 1, editable: true }] }
+  }
+
+  public PreferencePanes = new class {
+    public async register(_options: Record<string, any>): Promise<string> { return Promise.resolve('pane-id') }
+    public unregister(_id: string) { return }
   }
 
   public ProgressWindow = class implements ProgressWindow {

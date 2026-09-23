@@ -2,6 +2,8 @@ interface IZoteroPane {
   canEdit: () => boolean
   displayCannotEditLibraryMessage: () => void
   getSelectedCollection: (asID: boolean) => ZoteroCollection | null
+  // Zotero 10+: several collections can be selected at once
+  getSelectedCollections?: (asID: boolean) => ZoteroCollection[]
   getSelectedItems: () => [ZoteroItem]
 }
 
@@ -21,6 +23,11 @@ interface ZoteroItem {
   isCollection: () => boolean
 }
 
+interface ZoteroLibrary {
+  libraryID: number
+  editable: boolean
+}
+
 interface ProgressWindow {
   changeHeadline: (headline: string, icon?: string, postText?: string) => void
   addDescription: (body: string) => void
@@ -31,13 +38,18 @@ interface ProgressWindow {
 interface IZotero {
   Scihub: import('../content/scihub').Scihub
 
+  initializationPromise: Promise<void>
   debug: (msg: string) => void
+  alert: (window: Window | null, title: string, msg: string) => void
+  getMainWindow: () => Window | null
+  getMainWindows: () => (Window & Record<string, any>)[]
+  getActiveZoteroPane: () => IZoteroPane | null
   logError: (err: Error | string) => void
   launchURL: (url: string) => void
 
   Notifier: {
-    registerObserver: (observer: ZoteroObserver, types: string[], id: string, priority?: number) => number // any => ZoteroObserver
-    unregisterObserver: (id: number) => void
+    registerObserver: (observer: ZoteroObserver, types: string[], id: string, priority?: number) => string
+    unregisterObserver: (id: string) => void
   }
 
   Prefs: {
@@ -47,7 +59,7 @@ interface IZotero {
 
   Items: {
     getAsync: (ids: number | number[]) => Promise<any | any[]>
-    getAll: () => Promise<ZoteroItem[]>
+    getAll: (libraryID: number, onlyTopLevel?: boolean, includeDeleted?: boolean) => Promise<ZoteroItem[]>
   }
 
   HTTP: {
@@ -63,7 +75,12 @@ interface IZotero {
   }
 
   Libraries: {
-    isEditable: (libraryId: string) => boolean
+    getAll: () => ZoteroLibrary[]
+  }
+
+  PreferencePanes: {
+    register: (options: { pluginID: string, src: string, label?: string, image?: string, scripts?: string[] }) => Promise<string>
+    unregister: (id: string) => void
   }
 
   ProgressWindow: {

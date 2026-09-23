@@ -24,13 +24,17 @@ export abstract class ZoteroUtil {
     Zotero.debug(`Import result: ${JSON.stringify(result)}`)
   }
 
+  public static alert(message: string): void {
+    Zotero.alert(Zotero.getMainWindow(), 'Sci-Hub', message)
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   public static showPopup(title: string, body: string, isError = false, timeout = 5): void {
     // Shows user-friendly Zotero popup
     const seconds = 1000
     const pw = new Zotero.ProgressWindow()
     if (isError) {
-      pw.changeHeadline('Error', 'chrome://zotero/skin/cross.png', `Sci-Hub: ${title}`)
+      pw.changeHeadline('Error', undefined, `Sci-Hub: ${title}`)
     } else {
       pw.changeHeadline(`Sci-Hub: ${title}`)
     }

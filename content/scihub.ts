@@ -1,12 +1,10 @@
 import type { ZoteroItem, IZotero, ZoteroObserver } from '../typings/zotero'
 import { ItemPane } from './itemPane'
 import { ToolsPane } from './toolsPane'
-import { PrefPane } from './prefPane'
 import { UrlUtil } from './urlUtil'
 import { ZoteroUtil } from './zoteroUtil'
 
 declare const Zotero: IZotero
-declare const window
 
 enum HttpCodes {
   DONE = 200,
@@ -36,16 +34,23 @@ class Scihub {
   // TOOD: only bulk-update items which are missing paper attachement
   private static readonly DEFAULT_SCIHUB_URL = 'https://sci-hub.ru/'
   private static readonly DEFAULT_AUTOMATIC_PDF_DOWNLOAD = true
-  private observerId: number | null = null
+  private static readonly MENU_ELEMENT_CLASS = 'zotero-scihub-menu'
+  private observerId: string | null = null
+  private prefPaneId: string | null = null
   private initialized = false
+  private pluginId = ''
+  private rootURI = ''
   public ItemPane: ItemPane
-  public PrefPane: PrefPane
   public ToolsPane: ToolsPane
 
   constructor() {
     this.ItemPane = new ItemPane()
-    this.PrefPane = new PrefPane()
     this.ToolsPane = new ToolsPane()
+  }
+
+  public init({ id, rootURI }: { id: string, version: string, rootURI: string }): void {
+    this.pluginId = id
+    this.rootURI = rootURI
   }
 
   public getBaseScihubUrl(): string {
@@ -64,17 +69,67 @@ class Scihub {
     return Zotero.Prefs.get('zoteroscihub.automatic_pdf_download') as boolean
   }
 
-  public load(): void {
-    // Register the callback in Zotero as an item observer
+  public async startup(): Promise<void> {
     if (this.initialized) return
+    // Register the callback in Zotero as an item observer
     this.observerId = Zotero.Notifier.registerObserver(new ItemObserver(), ['item'], 'Scihub')
+    this.prefPaneId = await Zotero.PreferencePanes.register({
+      pluginID: this.pluginId,
+      src: `${this.rootURI}content/preferences.xhtml`,
+      label: 'Zotero Scihub',
+      image: `${this.rootURI}skin/default/sci-hub-logo.svg`,
+    })
+    for (const win of Zotero.getMainWindows()) {
+      if (win.ZoteroPane) this.addToWindow(win)
+    }
     this.initialized = true
   }
 
-  public unload(): void {
+  public shutdown(): void {
     if (this.observerId) {
       Zotero.Notifier.unregisterObserver(this.observerId)
+      this.observerId = null
     }
+    if (this.prefPaneId) {
+      Zotero.PreferencePanes.unregister(this.prefPaneId)
+      this.prefPaneId = null
+    }
+    for (const win of Zotero.getMainWindows()) {
+      this.removeFromWindow(win)
+    }
+    this.initialized = false
+  }
+
+  public addToWindow(win: Window & Record<string, any>): void {
+    const doc = win.document as Document & { createXULElement: (tagName: string) => HTMLElement }
+    if (doc.querySelector(`.${Scihub.MENU_ELEMENT_CLASS}`)) return
+    win.MozXULElement.insertFTLIfNeeded('zotero-scihub.ftl')
+
+    const icon = 'chrome://zotero-scihub/skin/sci-hub-logo.svg'
+    const addMenu = (popupId: string, menuId: string, l10nId: string, command: () => Promise<void>) => {
+      const popup = doc.getElementById(popupId)
+      if (!popup) return
+      const separator = doc.createXULElement('menuseparator')
+      separator.classList.add(Scihub.MENU_ELEMENT_CLASS)
+      const menuitem = doc.createXULElement('menuitem')
+      menuitem.id = menuId
+      menuitem.classList.add('menuitem-iconic', Scihub.MENU_ELEMENT_CLASS)
+      menuitem.setAttribute('data-l10n-id', l10nId)
+      menuitem.setAttribute('image', icon)
+      menuitem.addEventListener('command', () => { command().catch(err => Zotero.logError(err)) })
+      popup.append(separator, menuitem)
+    }
+
+    addMenu('zotero-itemmenu', 'zotero-itemmenu-scihub', 'zotero-scihub-update-item', () => this.ItemPane.updateSelectedItems())
+    addMenu('zotero-collectionmenu', 'zotero-collectionmenu-scihub', 'zotero-scihub-update-collection', () => this.ItemPane.updateSelectedEntity())
+    addMenu('menu_ToolsPopup', 'zotero-scihub-tools-updateall', 'zotero-scihub-update-all', () => this.ToolsPane.updateAll())
+  }
+
+  public removeFromWindow(win: Window): void {
+    for (const elem of Array.from(win.document.querySelectorAll(`.${Scihub.MENU_ELEMENT_CLASS}`))) {
+      elem.remove()
+    }
+    win.document.querySelector('[href="zotero-scihub.ftl"]')?.remove()
   }
 
   public async updateItems(items: ZoteroItem[]): Promise<void> {
@@ -102,7 +157,7 @@ class Scihub {
           continue
         } else {
           // Break if Captcha is reached, alert user and redirect
-          alert(
+          ZoteroUtil.alert(
             `Captcha is required or PDF is not ready yet for "${item.getField('title')}".\n\
             You will be redirected to the scihub page.\n\
             Restart fetching process manually.\n\
@@ -195,15 +250,5 @@ class Scihub {
 }
 
 Zotero.Scihub = new Scihub()
-
-// Check fails in testing environment
-if (typeof window !== 'undefined') {
-  window.addEventListener('load', _ => {
-    Zotero.Scihub.load()
-  }, false)
-  window.addEventListener('unload', _ => {
-    Zotero.Scihub.unload()
-  }, false)
-}
 
 export { Scihub }
