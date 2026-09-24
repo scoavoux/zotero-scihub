@@ -49,6 +49,9 @@ _Settings > Advanced > Config Editor_
 2. Build `npm run build`, the plugin is written to `build/zotero-scihub-<version>.xpi`
 3. To release, push a `v<version>` tag: CI attaches the `.xpi` and `update.json` (used by Zotero for automatic updates) to the GitHub release
 
+## Contributors
+Thank you Samuel Coavoux for the recent updates! https://github.com/scoavoux
+
 ## [Contributing](./CONTRIBUTING.md)
 
 ## Disclaimer
