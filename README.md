@@ -9,7 +9,7 @@ This is an add-on for [Zotero](https://www.zotero.org/) 7 to 10 that enables aut
 
 #### Install
 
-- Download the latest release (.xpi file) from the [Releases Page](https://github.com/scoavoux/zotero-scihub/releases)
+- Download the latest release (.xpi file) from the [Releases Page](https://github.com/ethanwillis/zotero-scihub/releases)
   _Note_ If you're using Firefox as your browser, right click the xpi and select "Save As.."
 - In Zotero click "Tools" in the top menu bar and then click "Plugins"
 - Click the gear icon in the top right and select "Install Plugin From File…"
