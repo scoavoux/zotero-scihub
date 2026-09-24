@@ -105,7 +105,7 @@ class Scihub {
     if (doc.querySelector(`.${Scihub.MENU_ELEMENT_CLASS}`)) return
     win.MozXULElement.insertFTLIfNeeded('zotero-scihub.ftl')
 
-    const icon = 'chrome://zotero-scihub/skin/sci-hub-logo.svg'
+    const icon = `${this.rootURI}skin/default/sci-hub-logo.svg`
     const addMenu = (popupId: string, menuId: string, l10nId: string, command: () => Promise<void>) => {
       const popup = doc.getElementById(popupId)
       if (!popup) return
@@ -138,7 +138,7 @@ class Scihub {
     // then user have to be redirected to the page to fill it in
     for (const item of items) {
       // Skip items which are not processable
-      if (!item.isRegularItem() || item.isCollection()) { continue }
+      if (!item.isRegularItem()) { continue }
 
       // Skip items without DOI or if URL generation had failed
       const scihubUrl = this.generateScihubItemUrl(item)
@@ -157,7 +157,7 @@ class Scihub {
           continue
         } else {
           // Break if Captcha is reached, alert user and redirect
-          alert(
+          Zotero.alert(Zotero.getMainWindow(), 'Sci-Hub',
             `Captcha is required or PDF is not ready yet for "${item.getField('title')}".\n\
             You will be redirected to the scihub page.\n\
             Restart fetching process manually.\n\
