@@ -25,15 +25,24 @@ item in Zotero.
 For any new papers you add after this plugin is installed, the scihub pdf will be
 automatically downloaded.
 
+Sci-Hub may ask you to prove that you are not a robot. When that happens the plugin
+opens the Sci-Hub page in a Zotero window: answer the question there ("No"/"Нет"),
+close the window and run "Update Scihub PDF" again. Solving it in your regular
+browser would not help, since Zotero does not see your browser's cookies.
+
 #### Configuration
 
 Plugin is configured through the dedicated "Zotero Scihub" pane in Zotero's settings:
 
-<img width="782" alt="Screenshot 2021-08-21 at 22 14 04" src="https://user-images.githubusercontent.com/387791/130333778-8bfb0878-2122-49a9-bc23-c528eb9b6cbf.png">
+- _Automatic PDF Download_: fetch the PDF of every item added to the library
+- _Sci-Hub URL_: the mirror to use, `https://sci-hub.ru/` by default. If your network
+  blocks it, try `https://sci-hub.box/` (redirects to a regional mirror) or enable
+  DNS-over-HTTPS as described below
 
 #### DNS-over-HTTPS
 
-In case of malfunctioning or unsafe local DNS server, Zotero (as it's built on Firefox) might be configured with [Trusted Recursive Resolver](https://wiki.mozilla.org/Trusted_Recursive_Resolver) or DNS-over-HTTPS, where you could set your own DNS server just for Zotero without modifying network settings.
+Some networks (universities, some ISPs) block Sci-Hub domains in their DNS server, in
+which case the plugin reports that it "cannot reach" the mirror. In case of malfunctioning or unsafe local DNS server, Zotero (as it's built on Firefox) might be configured with [Trusted Recursive Resolver](https://wiki.mozilla.org/Trusted_Recursive_Resolver) or DNS-over-HTTPS, where you could set your own DNS server just for Zotero without modifying network settings.
 
 _Settings > Advanced > Config Editor_
 

@@ -45,6 +45,7 @@ interface IZotero {
   getActiveZoteroPane: () => IZoteroPane | null
   logError: (err: Error | string) => void
   launchURL: (url: string) => void
+  openInViewer: (uri: string, options?: Record<string, any>) => Window | null
 
   Notifier: {
     registerObserver: (observer: ZoteroObserver, types: string[], id: string, priority?: number) => string
@@ -65,6 +66,8 @@ interface IZotero {
     request: (method: string, url: string, options?: {
       body?: string,
       responseType?: XMLHttpRequestResponseType,
+      noCache?: boolean,
+      successCodes?: number[] | false,
       headers?: Record<string, string>,
     }) => Promise<XMLHttpRequest>
   }

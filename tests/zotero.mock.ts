@@ -15,6 +15,7 @@ const Zotero: IZotero = new class {
   public getActiveZoteroPane() { return null }
   public logError(_err: Error | string) { return }
   public launchURL(_url: string) { return }
+  public openInViewer(_uri: string, _options?: Record<string, any>) { return null }
 
   public Notifier: IZotero['Notifier'] = new class {
     public registerObserver(_observer: ZoteroObserver, _types: string[], _id: string, _priority?: number) {
@@ -53,6 +54,8 @@ const Zotero: IZotero = new class {
     public async request(method: string, url: string, options?: {
       body?: string
       responseType?: XMLHttpRequestResponseType
+      noCache?: boolean
+      successCodes?: number[] | false
       headers?: Record<string, string>
     }): Promise<XMLHttpRequest> {
       const xhr = new XMLHttpRequest()
