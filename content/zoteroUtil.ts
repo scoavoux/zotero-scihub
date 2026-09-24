@@ -24,10 +24,6 @@ export abstract class ZoteroUtil {
     Zotero.debug(`Import result: ${JSON.stringify(result)}`)
   }
 
-  public static alert(message: string): void {
-    Zotero.alert(Zotero.getMainWindow(), 'Sci-Hub', message)
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   public static showPopup(title: string, body: string, isError = false, timeout = 5): void {
     // Shows user-friendly Zotero popup
