@@ -107,7 +107,7 @@ describe('Scihub test', () => {
 
     it('captcha redirects user and stops execution', async () => {
       const launchURLSpy = spy(Zotero, 'launchURL')
-      const alertStub = stub(Zotero, 'alert')
+      const alertStub = stub(globalThis, 'alert')
 
       // captachItem has weird response
       await Zotero.Scihub.updateItems([captchaItem, regularItem1])
