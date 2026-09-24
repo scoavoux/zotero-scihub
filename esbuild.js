@@ -41,7 +41,7 @@ async function build() {
       [id]: {
         updates: [{
           version: pkg.version,
-          update_link: `https://github.com/scoavoux/zotero-scihub/releases/download/v${pkg.version}/${xpiName}`,
+          update_link: `https://github.com/ethanwillis/zotero-scihub/releases/download/v${pkg.version}/${xpiName}`,
           applications: { zotero: { strict_min_version, strict_max_version } },
         }],
       },
