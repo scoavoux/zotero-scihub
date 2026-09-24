@@ -157,7 +157,7 @@ class Scihub {
           continue
         } else {
           // Break if Captcha is reached, alert user and redirect
-          ZoteroUtil.alert(
+          alert(
             `Captcha is required or PDF is not ready yet for "${item.getField('title')}".\n\
             You will be redirected to the scihub page.\n\
             Restart fetching process manually.\n\
